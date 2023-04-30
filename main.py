@@ -160,14 +160,19 @@ while True:
             # compute distance between fixed center and current center
             dist = np.sqrt((center[0] - fixed_center[0])**2 + (center[1] - fixed_center[1])**2)
             print(f"Distance between fixed center and current center: {dist:.6f}px")
-            # if particle is present:
+            # if particle there is a particle:
             if dist < 80:
+                writeBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset+2, True)
                 if dist > 8:
-                    writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset+1, False)
+                    writeBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset+1, False)
                 elif dist <= 8:
-                    writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset + 1, True)
+                    writeBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset + 1, True)
+            # if particle there is no particle:
+            else:
+                writeBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset+2, False)
+
             print(f'sensor = {temp}')
-            print(f'camera state = {readBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset + 1)}')
+            print(f'camera state = {readBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset + 1)}')
         # draw ROI rectangle on frame
         cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_w, roi_y+roi_h), (0, 255, 0), 2)
 
