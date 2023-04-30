@@ -5,20 +5,78 @@ import time
 from snap7 import util
 import struct
 
-masterplc = snap7.client.Client()
-masterplc.connect('10.1.1.6', 0, 1)  # IP address, rack, slot (from HW settings)
-
-master_db_number = 3
-master_start_offset = False
-master_bit_offset = 0
-
 slaveplc = snap7.client.Client()
 slaveplc.connect('10.1.1.156', 0, 1)  # IP address, rack, slot (from HW settings)
 
-slave_db_number = 1
+slaveproc_db_number = 1
+slavehand_db_number = 2
+slavedist_db_number = 3
+slavetest_db_number = 4
+
 slave_start_offset = False
 slave_bit_offset = 0
 
+distplc = snap7.client.Client()
+distplc.connect('10.1.1.2', 0, 1)  # IP address, rack, slot (from HW settings)
+
+dist_db_number = 3
+dist_start_offset = False
+dist_bit_offset = 0
+
+testplc = snap7.client.Client()
+testplc.connect('10.1.1.4', 0, 1)  # IP address, rack, slot (from HW settings)
+
+test_db_number = 3
+test_start_offset = False
+test_bit_offset = 0
+
+procplc = snap7.client.Client()
+procplc.connect('10.1.1.6', 0, 1)  # IP address, rack, slot (from HW settings)
+
+proc_db_number = 3
+proc_start_offset = False
+proc_bit_offset = 0
+
+handplc = snap7.client.Client()
+handplc.connect('10.1.1.8', 0, 1)  # IP address, rack, slot (from HW settings)
+
+hand_db_number = 3
+hand_start_offset = False
+hand_bit_offset = 0
+
+#loop for handling station
+def handling_station():
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 0, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset))
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 1, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset+1))
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 2, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset+2))
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 3, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset+3))
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 4, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset+4))
+    writeBool(slaveplc, slavehand_db_number, slave_start_offset, 5, readBool(handplc, hand_db_number, hand_start_offset, hand_bit_offset+5))
+
+#loop for proc station
+def proc_station():
+    writeBool(slaveplc, slaveproc_db_number, slave_start_offset, 0, readBool(procplc, proc_db_number, proc_start_offset, proc_bit_offset))
+
+#loop for distribution station
+def dist_station():
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 0, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 1, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 1))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 2, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 2))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 3, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 3))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 4, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 4))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 5, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 5))
+    writeBool(slaveplc, slavedist_db_number, slave_start_offset, 6, readBool(distplc, dist_db_number, dist_start_offset, dist_bit_offset + 6))
+
+#loop for testing station
+def testing_station():
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 0, readBool(testplc, test_db_number, test_start_offset, test_bit_offset))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 1, readBool(testplc, test_db_number, test_start_offset, test_bit_offset + 1))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 2, readBool(testplc, test_db_number, test_start_offset, test_bit_offset + 2))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 3, readBool(testplc, test_db_number, test_start_offset, test_bit_offset + 3))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 4, readBool(testplc, test_db_number, test_start_offset, test_bit_offset + 4))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 5, readBool(testplc, test_db_number, test_start_offset, test_bit_offset + 5))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 6, readBool(testplc, test_db_number, test_start_offset, test_bit_offset+6))
+    writeBool(slaveplc, slavetest_db_number, slave_start_offset, 7, readBool(testplc, test_db_number, test_start_offset, test_bit_offset+7))
 
 def writeBool(plc, db_number, start_offset, bit_offset, value):
     reading = plc.db_read(db_number, start_offset, 1)  # (db number, start offset, read 1 byte)
@@ -53,6 +111,10 @@ roi_selected = False
 fixed_center = None
 
 while True:
+    handling_station()
+    proc_station()
+    dist_station()
+    testing_station()
     # read frame from camera
     ret, frame = cap.read()
 
@@ -103,8 +165,6 @@ while True:
                     writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset+1, False)
                 elif dist <= 8:
                     writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset + 1, True)
-            temp = readBool(masterplc, master_db_number, master_start_offset, master_bit_offset)
-            writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset, temp)
             print(f'sensor = {temp}')
             print(f'camera state = {readBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset + 1)}')
         # draw ROI rectangle on frame
@@ -112,6 +172,7 @@ while True:
 
     # display frame
     cv2.imshow("Camera Stream", frame)
+    time.sleep(2)
     # check for key press
     key = cv2.waitKey(1)
     if key == ord('q'):
