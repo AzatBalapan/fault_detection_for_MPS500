@@ -160,6 +160,7 @@ while True:
             # compute distance between fixed center and current center
             dist = np.sqrt((center[0] - fixed_center[0])**2 + (center[1] - fixed_center[1])**2)
             print(f"Distance between fixed center and current center: {dist:.6f}px")
+            # if particle is present:
             if dist < 80:
                 if dist > 8:
                     writeBool(slaveplc, slave_db_number, slave_start_offset, slave_bit_offset+1, False)
