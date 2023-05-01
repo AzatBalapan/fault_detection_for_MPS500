@@ -171,7 +171,6 @@ while True:
             else:
                 writeBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset+2, False)
 
-            print(f'sensor = {temp}')
             print(f'camera state = {readBool(slaveplc, slaveproc_db_number, slave_start_offset, slave_bit_offset + 1)}')
         # draw ROI rectangle on frame
         cv2.rectangle(frame, (roi_x, roi_y), (roi_x+roi_w, roi_y+roi_h), (0, 255, 0), 2)
